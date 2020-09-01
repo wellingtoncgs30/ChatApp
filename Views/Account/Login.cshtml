@@ -1,0 +1,79 @@
+@model User
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <form class="chat-login" asp-action="Login" id="user-form">
+                <legend class="text-center">Entrar</legend>
+                <fieldset>
+                    <div class="form-group">
+                        <label asp-for="UserName">Nome de usuário:</label>
+                        <input asp-for="UserName" type="text" class="form-control" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <input type="password" name="password" class="form-control" id="password" required>
+                    </div>
+                    <div class="form-group">
+                        @if (TempData["Message"] != null)
+                        {
+                            <div id="modalSuccess" class="modal">
+                                <header>
+                                    <h5 class="text-center">Informação</h5>
+                                    <button type="button" class="btn btn-outline-danger">
+                                        <a href="#modalSuccess" rel="modal:close">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </button> 
+                                    <hr />
+                                </header>
+                                <p class="text-center">Login efetuado com sucesso!</p>
+                                <hr />
+                                <footer class="footer">
+                                    <button class="btn btn-success">
+                                        <a href="#modalSuccess" rel="modal:close" class="text-white" onclick="redirectToHome()">ok</a>
+                                    </button>
+                                </footer>
+                            </div>
+                        }
+                        <button type="submit" class="btn btn-success form-control">
+                            <a rel="modal:open" class="text-white">Enviar</a>
+                        </button>
+                        <button type="reset" class="btn btn-secondary form-control mt-1">Limpar</button>
+                        <button type="button" class="btn btn-secondary form-control mt-1"><a asp-controller="Account" asp-action="Register" class="text-white">Cadastrar</a></button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        $("#user-form").submit(function() {
+            let username = document.getElementById("username").value
+            let password = document.getElementById("password").value
+            $.ajax({
+                url: "/Account/Login",
+                type: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded" 
+                },
+                contentType: "application/x-www-form-urlencoded;charset=utf-8",
+                data: {
+                    username: username,
+                    password: password
+                },
+                success(response) {
+                    $("#modalSuccess").modal("show")
+                },
+                error(error) {
+                    $("#modalSuccess").modal("hide")
+                }
+            })
+            return false
+        })
+        function showModal() {
+            $("#modalSuccess").modal("show")
+        }
+    </script>
+}

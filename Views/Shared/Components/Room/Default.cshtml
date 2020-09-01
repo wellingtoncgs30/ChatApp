@@ -1,0 +1,61 @@
+@model IEnumerable<Chat>
+    <aside class="side-menu p-3">
+        <div id="modalExit" class="modal">
+            <header>
+                <button type="button" class="btn btn-outline-danger">
+                    <a href="#modalExit" rel="modal:close">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </button>
+                <h5 class="text-center">Confirmação</h5>
+                <hr>
+            </header>
+            <p class="text-center p-3">Você tem certeza de que deseja sair?</p>
+            <hr>
+            <footer class="footer">
+                <button class="btn btn-success">
+                    <a asp-controller="Account" asp-action="Logout" rel="modal:close" class="text-white" onclick="redirect()">sim</a>
+                </button>
+                <button class="btn btn-secondary">
+                    <a rel="modal:close" class="text-white">não</a>
+                </button>
+            </footer>
+        </div>
+        <button type="button" class="btn btn-danger" id="button-exit">
+            <a href="#modalExit" rel="modal:open">
+                <i class="fas fa-times-circle text-white" title="Sair"></i>
+            </a>
+        </button>
+        <div id="createNewRoom" class="modal">
+            <header>
+                <h5 class="text-center">Informação</h5>
+                <button type="button" class="btn btn-outline-danger">
+                    <a href="#createNewRoom" rel="modal:close">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </button>
+            </header>
+            <hr>
+            <form id="create-new-room-form" asp-controller="Home" asp-action="CreateRoom">
+                <fieldset>
+                    <h5 class="text-center">Criar nova sala</h5>
+                </fieldset>
+                <input type="text" class="form-control" name="name">
+                <hr>
+                <footer>
+                    <button type="submit" class="btn btn-success" id="create">criar</button>
+                </footer>
+            </form>
+        </div>
+        <button type="button" class="btn btn-success mt-3" id="button-add-room">
+            <a href="#createNewRoom" rel="modal:open" class="text-white">
+                <i class="fas fa-plus" title="Criar nova sala"></i>
+            </a>
+        </button>
+        @foreach (var chat in Model)
+        {
+            <button type="button" class="btn btn-primary mt-3" id="room-button">
+                <a asp-controller="Home" asp-action="Chat" asp-route-id="@chat.Id">@chat.Name</a>
+            </button>
+        }
+    </aside>

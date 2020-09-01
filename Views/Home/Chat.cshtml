@@ -1,0 +1,99 @@
+@model Chat
+<div class="chat-body bg-light">
+    @foreach (var message in Model.Messages)
+    {
+        <div class="chat-message">
+            <header>
+                <p>@message.Name:</p>
+            </header>   
+            <div class="chat-message-body">
+                <p>@message.Text</p>
+            </div>         
+            <footer>
+                <p>@message.Timestamp</p>
+            </footer>
+        </div>
+    }        
+</div>
+<div class="chat-input">
+    <form id="chat-form" asp-controller="Home" asp-action="CreateMessage" onsubmit="sendMessage(event)">
+        <div class="input-group">
+            <input type="hidden" name="roomId" value="@Model.Id">
+            <input type="text" class="form-control" name="message" id="message-input">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-paper-plane" title="Enviar Mensagem"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+@section scripts
+{
+    <script src="~/js/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let connection = new signalR.HubConnectionBuilder()
+                                    .withUrl("/chatHub")
+                                    .build()
+
+        let _connectionId = ""
+
+        connection.on("ReceiveMessage", (data) => {
+            let message = document.createElement("div")
+            message.classList.add("chat-message")
+            let header = document.createElement("header")
+            header.appendChild(document.createTextNode(data.name))
+            let p = document.createElement("p")
+            p.appendChild(document.createTextNode(data.text))
+            let messageBody = document.createElement("div")
+            messageBody.classList.add("chat-message-body")
+            let pBody = document.createElement("p")
+            pBody.appendChild(document.createTextNode(data.text))
+            let footer = document.createElement("footer")
+            footer.appendChild(document.createTextNode(data.timestamp))
+            message.appendChild(header)
+            message.appendChild(p)
+            messageBody.appendChild(pBody)
+            message.appendChild(footer)
+            document.querySelector(".chat-body").append(message)
+        })
+
+        const joinRoom = function() {
+            const url = `/Chat/JoinRoom/${_connectionId}/@Model.Id`
+            axios.post(url, null)
+                .then((response) => {
+                    //console.log(`Você entrou na sala do chat com sucesso! ${response}`)
+                })
+                .catch((error) => {
+                    //console.log(`Erro ao entrar na sala! ${error}, ${response}`)
+                })
+        }
+
+        connection.start()
+            .then(() => {
+                connection.invoke("getConnectionId")
+                    .then((connectionId) => {
+                        _connectionId = connectionId
+                        joinRoom()
+                    })
+            })
+            .catch((error) => {
+                //console.log(`Erro!! ${error}`)
+            })
+
+        let form = null
+        const sendMessage = function(event) {
+            event.preventDefault()
+            let data = new FormData(event.target)
+            document.getElementById("message-input").value = ""
+            axios.post("/Chat/SendMessage", data)
+                .then(response => {
+                    //console.log("Mensagem enviada!")
+                })
+                .catch(error => {
+                    //console.log(`Erro ao enviar a mensagem! ${error}`)
+                })
+        }
+    </script>
+}
